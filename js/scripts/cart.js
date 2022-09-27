@@ -1,32 +1,33 @@
 // Variables
-const ContainerProductsCart = document.getElementById('ContainerProductsCart');
-const TimeImport = document.getElementById('TimeImport');
-const TotalAmount = document.getElementById('TotalAmount');
+const ContainerProductsCart = document.getElementById("ContainerProductsCart");
+const TimeImport = document.getElementById("TimeImport");
+const TotalAmount = document.getElementById("TotalAmount");
+const BtnPay = document.getElementById("BtnPay");
+
 // Eventos
 
-document.addEventListener('DOMContentLoaded', () => {
-    EventListenersCart();
-    RenderProductsCard();
+document.addEventListener("DOMContentLoaded", () => {
+  EventListenersCart();
+  RenderProductsCard();
 });
 
 const EventListenersCart = () => {
-    ContainerProductsCart.addEventListener('click', DeleteProductCart);
-    ContainerProductsCart.addEventListener('change', DeleteProductCart);
+  ContainerProductsCart.addEventListener("click", DeleteProductCart);
+  ContainerProductsCart.addEventListener("change", DeleteProductCart);
+  BtnPay.addEventListener("click", PayCart);
 };
 
 // Metodos
 
 const RenderProductsCard = (ResultProducts) => {
+  RemoveAllChildNodes(ContainerProductsCart);
 
-    RemoveAllChildNodes(ContainerProductsCart);
+  ResultProducts.forEach((Product) => {
+    let SubTotal = (Number(Product.Quantity) * Number(Product.Price)).toFixed(
+      2
+    );
 
-    ResultProducts.forEach(Product => {
-
-        console.log(Product);
-
-        let SubTotal = (Number(Product.Quantity) * Number(Product.Price)).toFixed(2);
-
-        const TemplateItemString = `
+    const TemplateItemString = `
         <div id="card" class="row border-bottom mb-5 mt-3">
             <div class="col-md-2 mb-4 mb-md-0">
                 <div class="bg-image ripple rounded-5 mb-4 overflow-hidden d-block" data-ripple-color="light">
@@ -83,69 +84,76 @@ const RenderProductsCard = (ResultProducts) => {
             </div>
         </div>`;
 
-        let TemplateItem = new DOMParser().parseFromString(TemplateItemString, 'text/html').body.querySelector('#card');
+    let TemplateItem = new DOMParser()
+      .parseFromString(TemplateItemString, "text/html")
+      .body.querySelector("#card");
 
+    ContainerProductsCart.append(TemplateItem);
+    InitFormOutline();
+  });
 
-        ContainerProductsCart.append(TemplateItem);
-        InitFormOutline();
-    });
-
-    CalculateAmount();
-
+  CalculateAmount();
 };
 
-GetAllObject('cart', RenderProductsCard);
-
+GetAllObject("cart", RenderProductsCard);
 
 const DeleteProductCart = (e) => {
-    e.preventDefault();
-    if (e.target.classList.contains('BtnDeleteProduct')) {
-        
-        let IdCart = e.target.attributes['IdCart'].value;
+  e.preventDefault();
+  if (e.target.classList.contains("BtnDeleteProduct")) {
+    let IdCart = e.target.attributes["IdCart"].value;
 
-        DeleteObject('cart', Number(IdCart));
-        ShowMessage('Producto eliminado', 'danger');
-        GetAllObject('cart', RenderProductsCard);
-        CalculateAmount();
-    };
+    DeleteObject("cart", Number(IdCart));
+    ShowMessage("Producto eliminado", "danger");
+    GetAllObject("cart", RenderProductsCard);
+    CalculateAmount();
+  }
 
-    if (e.target.classList.contains('InputQuantity')) {
-        
-        let IdCart = e.target.attributes['id'].value;
-        let Quantity = Number(e.target.attributes['Quantity'].value);
-        let NewQuantity = Number(e.target.value);
+  if (e.target.classList.contains("InputQuantity")) {
+    let IdCart = e.target.attributes["id"].value;
+    let Quantity = Number(e.target.attributes["Quantity"].value);
+    let NewQuantity = Number(e.target.value);
 
-        if (Quantity !== NewQuantity) {
-            
-            let CartInfoNew = {
-                IdCart: Number(IdCart),
-                IdProduct: e.target.attributes['IdProduct'].value,
-                Name: e.target.attributes['Name'].value,
-                Category: e.target.attributes['Category'].value,
-                Url: e.target.attributes['Url'].value,
-                Promotion: e.target.attributes['Promotion'].value,
-                Color: e.target.attributes['Color'].value,
-                Price: e.target.attributes['Price'].value,
-                Quantity: NewQuantity
-            };
-    
-            UpdateObject('cart', Number(IdCart), CartInfoNew);
-            GetAllObject('cart', RenderProductsCard);
-        };
+    if (Quantity !== NewQuantity) {
+      let CartInfoNew = {
+        IdCart: Number(IdCart),
+        IdProduct: e.target.attributes["IdProduct"].value,
+        Name: e.target.attributes["Name"].value,
+        Category: e.target.attributes["Category"].value,
+        Url: e.target.attributes["Url"].value,
+        Promotion: e.target.attributes["Promotion"].value,
+        Color: e.target.attributes["Color"].value,
+        Price: e.target.attributes["Price"].value,
+        Quantity: NewQuantity,
+      };
 
-
-    };
+      UpdateObject("cart", Number(IdCart), CartInfoNew);
+      GetAllObject("cart", RenderProductsCard);
+    }
+  }
 };
 
-
 const CalculateAmount = () => {
-    let Total = 0;
+  let Total = 0;
 
-    const InputPrice = document.getElementsByClassName('InputPrice');
-    InputPrice.forEach(IPrice => Total += Number(IPrice.value));
+  const InputPrice = document.getElementsByClassName("InputPrice");
+  for (let index = 0; index < InputPrice.length; index++) {
+    const IPrice = InputPrice[index];
+    Total += Number(IPrice.value);
+  }
+  //   InputPrice.forEach((IPrice) => (Total += Number(IPrice.value)));
 
-    Total = Total.toFixed(2);
+  Total = Total.toFixed(2);
 
-    TotalAmount.innerText = `${Total} Bs.`;
-    TimeImport.innerText = `${Total} Bs.`;
+  TotalAmount.innerText = `${Total} Bs.`;
+  TimeImport.innerText = `${Total} Bs.`;
+};
+
+const PayCart = () => {
+  const InputQuantity = document.getElementsByClassName("InputQuantity");
+  for (let index = 0; index < InputQuantity.length; index++) {
+    const Product = InputQuantity[index];
+    let IdCart = Product.attributes["Id"].value;
+    DeleteObject("cart", Number(IdCart));
+  }
+  window.location = "index.html";
 };

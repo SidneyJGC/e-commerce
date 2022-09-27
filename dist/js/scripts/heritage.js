@@ -1,5 +1,5 @@
 // Variables
-const Host = "https://sidneyjgc.github.io/e-commerce/";
+const Host = "http://localhost/";
 
 const HeaderRoute = `${Host}header.html`;
 const FooterRoute = `${Host}footer.html`;
@@ -56,7 +56,7 @@ const ShowMessage = (Message, Type) => {
 
   const alertInstance = new mdb.Alert(alert, {
     color: Type,
-    position: "bottom-center",
+    position: "bottom-right",
     hidden: true,
     delay: 7000,
     autohide: true,
